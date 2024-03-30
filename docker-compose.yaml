@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: l0_user
+      POSTGRES_PASSWORD: L0
+      POSTGRES_DB: L0_db
+    volumes:
+     - ./initial.sql:/docker-entrypoint-initdb.d/initial.sql
+    ports:
+      - 5432:5432
+    container_name: postgres_1 
+     
+
+  nats-streaming:
+    image: nats-streaming:latest
+    container_name: nats
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    environment:
+      - STAN_CLUSTER=my_cluster
+    command: ["--cluster_id=my_cluster"]
