@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS "delivery" (
 
 CREATE TABLE IF NOT EXISTS "payment" (
     id SERIAL PRIMARY KEY,
-    transaction VARCHAR(255),
+    transaction DEFAULT gen_random_uuid(),
     request_id VARCHAR(255),
     currency VARCHAR(10),
     provider VARCHAR(50),
@@ -56,3 +56,8 @@ CREATE TABLE IF NOT EXISTS "orders" (
     FOREIGN KEY (delivery_id) REFERENCES delivery (id),
     FOREIGN KEY (payment_id) REFERENCES payment (id)
 );
+
+CREATE TABLE IF NOT EXISTS "orders_items" (
+    "order_uuid" UUID PRIMARY KEY REFERENCES "orders" ("order_uuid"),
+    "item_id" SERIAL REFERENCES "item" ("id")
+)

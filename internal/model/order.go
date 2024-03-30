@@ -1,6 +1,10 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Delivery struct {
 	Id      int
@@ -15,16 +19,16 @@ type Delivery struct {
 
 type Payment struct {
 	Id           int
-	Transaction  string `json:"transaction"`
-	RequestID    string `json:"request_id"`
-	Currency     string `json:"currency"`
-	Provider     string `json:"provider"`
-	Amount       int    `json:"amount"`
-	PaymentDt    int64  `json:"payment_dt"`
-	Bank         string `json:"bank"`
-	DeliveryCost int    `json:"delivery_cost"`
-	GoodsTotal   int    `json:"goods_total"`
-	CustomFee    int    `json:"custom_fee"`
+	Transaction  uuid.UUID `json:"transaction"`
+	RequestID    string    `json:"request_id"`
+	Currency     string    `json:"currency"`
+	Provider     string    `json:"provider"`
+	Amount       int       `json:"amount"`
+	PaymentDt    int64     `json:"payment_dt"`
+	Bank         string    `json:"bank"`
+	DeliveryCost int       `json:"delivery_cost"`
+	GoodsTotal   int       `json:"goods_total"`
+	CustomFee    int       `json:"custom_fee"`
 }
 
 type Item struct {
