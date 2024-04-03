@@ -8,6 +8,7 @@ import (
 	"github.com/mainpluv/wb_l0/internal/cache"
 	"github.com/mainpluv/wb_l0/internal/database"
 	"github.com/mainpluv/wb_l0/internal/delivery"
+	"github.com/mainpluv/wb_l0/internal/messaging"
 	"github.com/mainpluv/wb_l0/internal/service"
 )
 
@@ -39,5 +40,8 @@ func main() {
 		log.Fatalf("Failed to connect to nats-streaming server: %v", err)
 	}
 	defer sc.Close()
-
+	sub := messaging.NewSubscriber(sc, orderService)
+	sub.StartSubscriber()
+	pub := messaging.NewPublisher(sc)
+	pub.StartPublisher()
 }
