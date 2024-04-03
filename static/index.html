@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+</head>
+<body>
+    <h1>Order Details</h1>
+    <form id="orderForm">
+        <label for="orderId">Enter Order ID (UUID):</label><br>
+        <input type="text" id="orderId" name="orderId"><br>
+        <button type="submit">Get Order Details</button>
+    </form>
+    <div id="orderDetails"></div>
+
+    <script>
+        document.getElementById("orderForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent the form from submitting
+
+            // Get the order ID (UUID) from the input field
+            var orderId = document.getElementById("orderId").value;
+
+            // Send a GET request to the server to fetch order details
+            fetch("/order/" + orderId)
+                .then(response => response.json())
+                .then(data => {
+                    // Display order details in the orderDetails div
+                    document.getElementById("orderDetails").innerHTML = JSON.stringify(data, null, 2);
+                })
+                .catch(error => {
+                    // Display error message if request fails
+                    document.getElementById("orderDetails").innerHTML = "Error fetching order details: " + error.message;
+                });
+        });
+    </script>
+</body>
+</html>

@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"github.com/google/uuid"
 	"github.com/mainpluv/wb_l0/internal/cache"
 	"github.com/mainpluv/wb_l0/internal/database"
@@ -47,6 +49,7 @@ func (s *OrderServiceImpl) GetOrder(uuid uuid.UUID) (*model.Order, error) {
 func (s *OrderServiceImpl) Pull() error {
 	orders, err := s.repos.GetAll()
 	if err != nil {
+		fmt.Println("aaaaaaa")
 		return err
 	}
 	for _, order := range orders {

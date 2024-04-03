@@ -64,6 +64,18 @@ func (o *OrderRepo) Create(order model.Order) (*model.Order, error) {
 		return nil, err
 	}
 
+	// Вставка данных в таблицу orders
+	orderQuery := `
+		INSERT INTO orders (track_number, entry, delivery_id, payment_id, locale, internal_signature, customer_id, delivery_service, shard_key, sm_id, date_created, oof_shard)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
+	_, err = tx.Exec(context.Background(), orderQuery,
+		order.TrackNumber, order.Entry, deliveryID, paymentID,
+		order.Locale, order.InternalSignature, order.CustomerID, order.DeliveryService,
+		order.ShardKey, order.SmID, order.DateCreated, order.OofShard)
+	if err != nil {
+		return nil, err
+	}
+
 	// Вставка данных в таблицу items
 	for _, item := range order.Items {
 		itemQuery := `
@@ -83,18 +95,6 @@ func (o *OrderRepo) Create(order model.Order) (*model.Order, error) {
 		if err != nil {
 			return nil, err
 		}
-	}
-
-	// Вставка данных в таблицу orders
-	orderQuery := `
-		INSERT INTO orders (track_number, entry, delivery_id, payment_id, locale, internal_signature, customer_id, delivery_service, shardkey, sm_id, date_created, oof_shard)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
-	_, err = tx.Exec(context.Background(), orderQuery,
-		order.TrackNumber, order.Entry, deliveryID, paymentID,
-		order.Locale, order.InternalSignature, order.CustomerID, order.DeliveryService,
-		order.ShardKey, order.SmID, order.DateCreated, order.OofShard)
-	if err != nil {
-		return nil, err
 	}
 
 	return &order, nil
@@ -117,16 +117,22 @@ func (o *OrderRepo) GetAll() ([]model.Order, error) {
 
 	// Запрос для получения всех данных о заказах с информацией о доставке и оплате
 	query := `
-		SELECT *
-		FROM orders o
-		JOIN delivery d ON o.delivery_id = d.id
-		JOIN payment p ON o.payment_id = p.id`
+	SELECT 
+	o.order_uuid, o.track_number, o.entry, o.locale, o.internal_signature, o.customer_id,
+	o.delivery_service, o.shard_key, o.sm_id, o.date_created, o.oof_shard, 
+	d.id, d.name, d.phone, d.zip, d.city, d.address, d.region, d.email,
+	p.transaction, p.request_id, p.currency, p.provider, p.amount, p.payment_dt,
+	p.bank, p.delivery_cost, p.goods_total, p.custom_fee, p.id
+	FROM 
+	orders o
+	JOIN delivery d ON o.delivery_id = d.id
+	JOIN payment p ON o.payment_id = p.id`
 
 	rows, err := tx.Query(context.Background(), query)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	rows.Close()
 
 	for rows.Next() {
 		var order model.Order
@@ -151,23 +157,23 @@ func (o *OrderRepo) GetAll() ([]model.Order, error) {
 		order.Payment = payment
 
 		// Запрос для получения товаров в заказе
-		itemsQuery := `
+		iQuery := `
 			SELECT i.id, i.chrt_id, i.track_number, i.price, i.rid, i.name, i.sale, 
 			i.size, i.total_price, i.nm_id, i.brand, i.status
 			FROM items i
 			INNER JOIN orders_items oi ON i.id = oi.item_id
 			WHERE oi.order_uuid = $1`
 
-		rows, err := tx.Query(context.Background(), itemsQuery, order.OrderUUID)
+		rowsItems, err := tx.Query(context.Background(), iQuery, order.OrderUUID) //ошибка
 		if err != nil {
 			return nil, err
 		}
-		defer rows.Close()
+		defer rowsItems.Close()
 
 		var items []model.Item
-		for rows.Next() {
+		for rowsItems.Next() {
 			var item model.Item
-			err := rows.Scan(
+			err := rowsItems.Scan(
 				&item.Id, &item.ChrtID, &item.TrackNumber, &item.Price, &item.Rid,
 				&item.Name, &item.Sale, &item.Size, &item.TotalPrice, &item.NmID,
 				&item.Brand, &item.Status,

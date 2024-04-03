@@ -40,7 +40,7 @@ func (s *Subscriber) StartSubscriber() error {
 
 func (p *Publisher) StartPublisher() error {
 	for i := 0; i < 10; i++ {
-		err := p.publishMessege()
+		err := p.publishMessage()
 		if err != nil {
 			log.Printf("Error publishing message: %v", err)
 			return err
@@ -49,7 +49,7 @@ func (p *Publisher) StartPublisher() error {
 	return nil
 }
 
-func (p *Publisher) publishMessege() error {
+func (p *Publisher) publishMessage() error {
 	order := GenerateOrder()
 	orderJSON, err := json.Marshal(order)
 	if err != nil {

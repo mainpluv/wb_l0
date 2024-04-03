@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/nats-io/stan.go"
@@ -13,18 +14,19 @@ import (
 )
 
 func main() {
-	connString := "postgresql://l0_user:L0@localhost:5432/L0"
+	connString := "postgres://l0_user:L0@localhost:5432/L0_db"
 	pool, err := database.NewPool(connString)
 	if err != nil {
 		log.Fatalf("Error creating db pool: %v", err)
 	}
+	log.Println("successful connection to db")
 	defer pool.Close()
 
 	orderRepo := database.NewOrderRepo(pool)
 	memCache := cache.NewMemoryCache()
 	orderService := service.NewOrderService(orderRepo, memCache)
 	if err := orderService.Pull(); err != nil {
-		log.Fatalf("Failed to pull orders: %v", err)
+		fmt.Printf("Failed to pull orders: %v", err.Error())
 	}
 	handler := delivery.NewHandler(orderService)
 	router := handler.InitRoutes()

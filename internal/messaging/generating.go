@@ -10,13 +10,15 @@ import (
 )
 
 func GenerateOrder() model.Order {
+	orderUUIDCurr := uuid.New()
+	currentTime := time.Now().Format(time.RFC3339)
 	tracknb := "WBILM" + genStr(7)
 	order := model.Order{
-		OrderUUID:         uuid.UUID{},
+		OrderUUID:         orderUUIDCurr,
 		TrackNumber:       tracknb,
 		Entry:             "WBIL",
 		Delivery:          genDelivery(),
-		Payment:           genPayment(),
+		Payment:           genPayment(orderUUIDCurr),
 		Items:             genItems(tracknb),
 		Locale:            "en",
 		InternalSignature: "",
@@ -24,7 +26,7 @@ func GenerateOrder() model.Order {
 		DeliveryService:   "meest",
 		ShardKey:          genStr(1),
 		SmID:              genInt(1, 99),
-		DateCreated:       time.Now(),
+		DateCreated:       currentTime,
 		OofShard:          genStr(1),
 	}
 	return order
@@ -44,7 +46,7 @@ func genStr(n int) string {
 func genInt(a, b int) int {
 	source := rand.NewSource(time.Now().UnixNano())
 	r := rand.New(source)
-	return r.Intn(a-b) + b
+	return r.Intn(b-a) + a
 }
 func genNumbersStr(n int) string {
 	var res string
@@ -68,17 +70,17 @@ func genDelivery() model.Delivery {
 	return delivery
 }
 
-func genPayment() model.Payment {
+func genPayment(orderUUIDCurr uuid.UUID) model.Payment {
 	amount := genInt(10, 100000)
 	deliveryCost := genInt(0, amount-1)
 	goodsTotal := amount - deliveryCost
 	payment := model.Payment{
-		Transaction:  uuid.New(),
+		Transaction:  orderUUIDCurr,
 		RequestID:    "",
 		Currency:     genCurrency(),
 		Provider:     "wbpay",
 		Amount:       amount,
-		PaymentDt:    time.Now().UnixNano(),
+		PaymentDt:    time.Now(),
 		Bank:         genBank(),
 		DeliveryCost: deliveryCost,
 		GoodsTotal:   goodsTotal,

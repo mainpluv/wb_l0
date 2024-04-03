@@ -58,6 +58,6 @@ CREATE TABLE IF NOT EXISTS "orders" (
 );
 
 CREATE TABLE IF NOT EXISTS "orders_items" (
-    "order_uuid" UUID PRIMARY KEY REFERENCES "orders" ("order_uuid"),
-    "item_id" SERIAL REFERENCES "items" ("id")
+    "order_uuid" uuid DEFAULT gen_random_uuid(),
+    "item_id" int4
 )
