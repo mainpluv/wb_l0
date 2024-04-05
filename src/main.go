@@ -31,12 +31,6 @@ func main() {
 	handler := delivery.NewHandler(orderService)
 	router := handler.InitRoutes()
 	server := delivery.NewServer(router)
-	go func() {
-		log.Println("Server started")
-		if err := server.RunServer(); err != nil {
-			log.Fatalf("Failed to start the server: %v", err)
-		}
-	}()
 	sc, err := stan.Connect("my_cluster", "client_id", stan.NatsURL("nats://localhost:4222"))
 	if err != nil {
 		log.Fatalf("Failed to connect to nats-streaming server: %v", err)
@@ -46,4 +40,8 @@ func main() {
 	sub.StartSubscriber()
 	pub := messaging.NewPublisher(sc)
 	pub.StartPublisher()
+	log.Println("Server started")
+	if err := server.RunServer(); err != nil {
+		log.Fatalf("Failed to start the server: %v", err)
+	}
 }

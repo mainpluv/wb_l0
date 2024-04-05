@@ -10,29 +10,83 @@
     <form id="orderForm">
         <label for="orderId">Enter Order ID (UUID):</label><br>
         <input type="text" id="orderId" name="orderId"><br>
-        <button type="submit">Get Order Details</button>
+        <button type="button" onclick="getOrderDetails()">Get Order Details</button>
     </form>
     <div id="orderDetails"></div>
 
     <script>
-        document.getElementById("orderForm").addEventListener("submit", function(event) {
-            event.preventDefault(); // Prevent the form from submitting
-
-            // Get the order ID (UUID) from the input field
+        function getOrderDetails() {
+            // получаем uuid из поля ввода
             var orderId = document.getElementById("orderId").value;
 
-            // Send a GET request to the server to fetch order details
-            fetch("/order/" + orderId)
-                .then(response => response.json())
+            // отправляем гет запрос
+            fetch("/orders/" + orderId)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error fetching order details');
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    // Display order details in the orderDetails div
-                    document.getElementById("orderDetails").innerHTML = JSON.stringify(data, null, 2);
+                    // структура html
+                    var orderDetailsHtml = "<h2>Order Details</h2>";
+                    orderDetailsHtml += "<p><strong>Order UUID:</strong> " + data.order_uid + "</p>";
+                    orderDetailsHtml += "<p><strong>Track Number:</strong> " + data.track_number + "</p>";
+                    orderDetailsHtml += "<p><strong>Entry:</strong> " + data.entry + "</p>";
+                    orderDetailsHtml += "<p><strong>Locale:</strong> " + data.locale + "</p>";
+                    orderDetailsHtml += "<p><strong>Delivery:</strong></p>";
+                    orderDetailsHtml += "<ul>";
+                    orderDetailsHtml += "<li><strong>ID:</strong> " + data.delivery.Id + "</li>";
+                    orderDetailsHtml += "<li><strong>Name:</strong> " + data.delivery.name + "</li>";
+                    orderDetailsHtml += "<li><strong>Phone:</strong> " + data.delivery.phone + "</li>";
+                    orderDetailsHtml += "<li><strong>Zip:</strong> " + data.delivery.zip + "</li>";
+                    orderDetailsHtml += "<li><strong>City:</strong> " + data.delivery.city + "</li>";
+                    orderDetailsHtml += "<li><strong>Address:</strong> " + data.delivery.address + "</li>";
+                    orderDetailsHtml += "<li><strong>Region:</strong> " + data.delivery.region + "</li>";
+                    orderDetailsHtml += "<li><strong>Email:</strong> " + data.delivery.email + "</li>";
+                    orderDetailsHtml += "</ul>";
+                    orderDetailsHtml += "<p><strong>Payment:</strong></p>";
+                    orderDetailsHtml += "<ul>";
+                    orderDetailsHtml += "<li><strong>ID:</strong> " + data.payment.Id + "</li>";
+                    orderDetailsHtml += "<li><strong>Transaction:</strong> " + data.payment.transaction + "</li>";
+                    orderDetailsHtml += "<li><strong>Request ID:</strong> " + data.payment.request_id + "</li>";
+                    orderDetailsHtml += "<li><strong>Currency:</strong> " + data.payment.currency + "</li>";
+                    orderDetailsHtml += "<li><strong>Provider:</strong> " + data.payment.provider + "</li>";
+                    orderDetailsHtml += "<li><strong>Amount:</strong> " + data.payment.amount + "</li>";
+                    orderDetailsHtml += "<li><strong>Payment Date:</strong> " + data.payment.payment_dt + "</li>";
+                    orderDetailsHtml += "<li><strong>Bank:</strong> " + data.payment.bank + "</li>";
+                    orderDetailsHtml += "<li><strong>Delivery Cost:</strong> " + data.payment.delivery_cost + "</li>";
+                    orderDetailsHtml += "<li><strong>Goods Total:</strong> " + data.payment.goods_total + "</li>";
+                    orderDetailsHtml += "<li><strong>Custom Fee:</strong> " + data.payment.custom_fee + "</li>";
+                    orderDetailsHtml += "</ul>";
+                    orderDetailsHtml += "<p><strong>Order Items:</strong></p>";
+                    orderDetailsHtml += "<ul>";
+                    data.items.forEach(item => {
+                        orderDetailsHtml += "<li>";
+                        orderDetailsHtml += "<strong>ID:</strong> " + item.Id + "<br>";
+                        orderDetailsHtml += "<strong>chrt_id:</strong> " + item.chrt_id + "<br>";
+                        orderDetailsHtml += "<strong>Track Number:</strong> " + item.track_number + "<br>";
+                        orderDetailsHtml += "<strong>Price:</strong> " + item.price + "<br>";
+                        orderDetailsHtml += "<strong>RID:</strong> " + item.rid + "<br>";
+                        orderDetailsHtml += "<strong>Name:</strong> " + item.name + "<br>";
+                        orderDetailsHtml += "<strong>Sale:</strong> " + item.sale + "<br>";
+                        orderDetailsHtml += "<strong>Size:</strong> " + item.size + "<br>";
+                        orderDetailsHtml += "<strong>Total Price:</strong> " + item.total_price + "<br>";
+                        orderDetailsHtml += "<strong>Nm ID:</strong> " + item.nm_id + "<br>";
+                        orderDetailsHtml += "<strong>Brand:</strong> " + item.brand + "<br>";
+                        orderDetailsHtml += "<strong>Status:</strong> " + item.status + "<br>";
+                        orderDetailsHtml += "</li>";
+                    });
+                    orderDetailsHtml += "</ul>";
+
+                    // отображаем сведения о заказе
+                    document.getElementById("orderDetails").innerHTML = orderDetailsHtml;
                 })
                 .catch(error => {
-                    // Display error message if request fails
+                    // отображаем ошибки, если есть
                     document.getElementById("orderDetails").innerHTML = "Error fetching order details: " + error.message;
                 });
-        });
+        }
     </script>
 </body>
 </html>

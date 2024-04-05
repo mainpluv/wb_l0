@@ -48,7 +48,12 @@ func (h *Handler) GetOrderByIdHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	// Получаем данные из URL
-	orderUUID, err := uuid.Parse(mux.Vars(r)["id"])
+	id, ok := mux.Vars(r)["id"]
+	if !ok {
+		MyError(w, "No order ID provided", http.StatusBadRequest)
+		return
+	}
+	orderUUID, err := uuid.Parse(id)
 	if err != nil {
 		MyError(w, err.Error(), http.StatusBadRequest)
 		return
@@ -81,6 +86,6 @@ func MyError(w http.ResponseWriter, errorMessage string, statusCode int) {
 func (h *Handler) InitRoutes() *mux.Router {
 	router := mux.NewRouter()
 	router.HandleFunc("/orders", h.HandleHome).Methods("GET")
-	router.HandleFunc("/odeers/{id}", h.GetOrderByIdHandler).Methods("GET")
+	router.HandleFunc("/orders/{id}", h.GetOrderByIdHandler).Methods("GET")
 	return router
 }

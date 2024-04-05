@@ -28,20 +28,34 @@ func NewOrderService(repos database.OrderRepository, cache cache.Cache) *OrderSe
 }
 
 func (s *OrderServiceImpl) SaveOrder(order model.Order) (model.Order, error) {
-	// Реализация создания заказа
+	// реализация создания заказа
 	newOrder, err := s.repos.Create(order)
+	orderFromDB, err1 := s.repos.GetOne(newOrder.OrderUUID)
+	if err1 != nil {
+		fmt.Errorf("error: %v", err1)
+	}
 	if err != nil {
 		return model.Order{}, err
 	}
-	s.cache.Put(*newOrder)
+	s.cache.Put(orderFromDB)
 	return *newOrder, nil
 }
 
 func (s *OrderServiceImpl) GetOrder(uuid uuid.UUID) (*model.Order, error) {
-	// Реализация получения информации о заказе
+	// реализация получения информации о заказе
 	order, err := s.cache.Get(uuid)
 	if err != nil {
-		return &model.Order{}, err
+		// при падении сервиса подтягиваем данные из бд в кеш
+		orderFromDB, err1 := s.repos.GetOne(uuid)
+		if err1 != nil {
+			return &model.Order{}, err
+		}
+		s.cache.Put(orderFromDB)
+		newOrderFromCache, err2 := s.cache.Get(orderFromDB.OrderUUID)
+		if err2 != nil {
+			return &model.Order{}, err2
+		}
+		return newOrderFromCache, nil
 	}
 	return order, nil
 }
@@ -49,11 +63,10 @@ func (s *OrderServiceImpl) GetOrder(uuid uuid.UUID) (*model.Order, error) {
 func (s *OrderServiceImpl) Pull() error {
 	orders, err := s.repos.GetAll()
 	if err != nil {
-		fmt.Println("aaaaaaa")
 		return err
 	}
 	for _, order := range orders {
-		s.cache.Put(order)
+		s.cache.Put(&order)
 	}
 	return nil
 }

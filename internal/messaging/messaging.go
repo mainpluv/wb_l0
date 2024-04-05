@@ -39,7 +39,7 @@ func (s *Subscriber) StartSubscriber() error {
 }
 
 func (p *Publisher) StartPublisher() error {
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 1; i++ {
 		err := p.publishMessage()
 		if err != nil {
 			log.Printf("Error publishing message: %v", err)

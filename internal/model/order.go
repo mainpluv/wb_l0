@@ -7,7 +7,7 @@ import (
 )
 
 type Delivery struct {
-	Id      int
+	Id      int    `json:"Id"`
 	Name    string `json:"name"`
 	Phone   string `json:"phone"`
 	Zip     string `json:"zip"`
@@ -18,7 +18,7 @@ type Delivery struct {
 }
 
 type Payment struct {
-	Id           int
+	Id           int       `json:"Id"`
 	Transaction  uuid.UUID `json:"transaction"`
 	RequestID    string    `json:"request_id"`
 	Currency     string    `json:"currency"`
@@ -32,7 +32,7 @@ type Payment struct {
 }
 
 type Item struct {
-	Id          int
+	Id          int    `json:"Id"`
 	ChrtID      int    `json:"chrt_id"`
 	TrackNumber string `json:"track_number"`
 	Price       int    `json:"price"`

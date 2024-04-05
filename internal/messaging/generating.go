@@ -58,7 +58,6 @@ func genNumbersStr(n int) string {
 
 func genDelivery() model.Delivery {
 	delivery := model.Delivery{
-		Id:      genInt(1, 100),
 		Name:    genStr(5) + " " + genStr(6),
 		Phone:   "+" + genNumbersStr(11),
 		Zip:     genNumbersStr(7),
