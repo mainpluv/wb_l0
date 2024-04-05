@@ -1,8 +1,6 @@
 package service
 
 import (
-	"fmt"
-
 	"github.com/google/uuid"
 	"github.com/mainpluv/wb_l0/internal/cache"
 	"github.com/mainpluv/wb_l0/internal/database"
@@ -32,7 +30,7 @@ func (s *OrderServiceImpl) SaveOrder(order model.Order) (model.Order, error) {
 	newOrder, err := s.repos.Create(order)
 	orderFromDB, err1 := s.repos.GetOne(newOrder.OrderUUID)
 	if err1 != nil {
-		fmt.Errorf("error: %v", err1)
+		return model.Order{}, err1
 	}
 	if err != nil {
 		return model.Order{}, err
